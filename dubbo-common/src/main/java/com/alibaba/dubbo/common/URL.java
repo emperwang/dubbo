@@ -176,7 +176,13 @@ public final class URL implements Serializable {
      * @return URL instance
      * @see URL
      */
+    //解析注册的url地址
+    //test://localhost/hello?hello.service=human
+    // url dubbo://100.98.132.119:20880/com.wk.api.service.UserService?anyhost=true&application=boot-dubbo-provider\
+    // &bind.ip=100.98.132.119&bind.port=20880&dubbo=2.6.2&generic=false&interface=com.wk.api.service.UserService\
+    // &methods=getById&pid=15708&side=provider&timestamp=1600238480829
     public static URL valueOf(String url) {
+        // 如果为null,则报错
         if (url == null || (url = url.trim()).length() == 0) {
             throw new IllegalArgumentException("url == null");
         }
@@ -186,11 +192,15 @@ public final class URL implements Serializable {
         String host = null;
         int port = 0;
         String path = null;
+        // 解析 url中的参数
         Map<String, String> parameters = null;
+        // 获取? 符号的 索引,
         int i = url.indexOf("?"); // seperator between body and parameters 
         if (i >= 0) {
+            // 获取从?到最后的参数,并使用 & 符号分隔
             String[] parts = url.substring(i + 1).split("\\&");
             parameters = new HashMap<String, String>();
+            // 然后遍历分隔后的数据,解析其中的参数 对
             for (String part : parts) {
                 part = part.trim();
                 if (part.length() > 0) {
@@ -202,15 +212,20 @@ public final class URL implements Serializable {
                     }
                 }
             }
+            // 获取url
             url = url.substring(0, i);
         }
+        // 分隔  ://
         i = url.indexOf("://");
         if (i >= 0) {
             if (i == 0) throw new IllegalStateException("url missing protocol: \"" + url + "\"");
+            // 获取协议
             protocol = url.substring(0, i);
+            // 获取 uri 地址
             url = url.substring(i + 3);
         } else {
             // case: file:/path/to/file.txt
+            // :/ 类型的 url
             i = url.indexOf(":/");
             if (i >= 0) {
                 if (i == 0) throw new IllegalStateException("url missing protocol: \"" + url + "\"");
@@ -218,28 +233,35 @@ public final class URL implements Serializable {
                 url = url.substring(i + 1);
             }
         }
-
+        // localhost/hello
         i = url.indexOf("/");
         if (i >= 0) {
+            // path
             path = url.substring(i + 1);
+            // url
             url = url.substring(0, i);
         }
+        // username:host@localhost
         i = url.lastIndexOf("@");
         if (i >= 0) {
             username = url.substring(0, i);
             int j = username.indexOf(":");
             if (j >= 0) {
+                // password
                 password = username.substring(j + 1);
+                // username
                 username = username.substring(0, j);
             }
             url = url.substring(i + 1);
         }
+        // 端口号解析
         i = url.indexOf(":");
         if (i >= 0 && i < url.length() - 1) {
             port = Integer.parseInt(url.substring(i + 1));
             url = url.substring(0, i);
         }
         if (url.length() > 0) host = url;
+        // 创建一个 URL 对象
         return new URL(protocol, username, password, host, port, path, parameters);
     }
 
