@@ -1,0 +1,5 @@
+group=activate.GroupActivateExtImpl2
+default=activate.ActivateExtImple1
+ord1=activate.OrderActivateImpl1
+ord2=activate.OrderActivateImpl2
+value=activate.ValueActivatImpl
